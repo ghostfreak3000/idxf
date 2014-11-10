@@ -64,6 +64,18 @@ var db = (function(_dbname,_version){
             pvt_getDataOnId(db,_store,_id,callback); 
         });
     };
+
+    /**
+     * 
+     * @param {String} _store
+     * @param {function} callback
+     * @returns {null}
+     */
+    _db.getData = function(_store, callback){
+        pvt_cron(function(db){
+            pvt_getData(db,_store,callback); 
+        });
+    };
     
     /**
      * 
@@ -148,6 +160,32 @@ var db = (function(_dbname,_version){
         };                             
     };
     
+    function pvt_getData(db,_store,callback)
+    {
+        var entries = [];
+        
+        var request =   db.transaction([_store])
+                        .objectStore(_store)
+                        .openCursor();  
+
+        request.onsuccess = function(event) {
+            var cursor = event.target.result;
+            if(cursor)
+            {
+                entries.push({key:cursor.key, value:cursor.value});
+                cursor.continue();
+            }
+            else
+            {
+                if( typeof callback === "function" )
+                {
+                    callback(entries);
+                }                
+            }
+            
+        };                             
+    };
+        
     function pvt_setDataOnId(db,_store,_id, _data)
     {
         var objectStore     =       db.transaction([_store], "readwrite")
