@@ -85,12 +85,18 @@ var db = (function(_dbname,_version){
         
         request.onsuccess = function(event){
             var db = request.result;
-            callback(db);
+            if( typeof callback === "function" )
+            {
+                callback(db);
+            }            
         };
         
         request.onupgradeneeded = function(event){  
             var db = event.target.result;
-            callback(db);
+            if( typeof callback === "function" )
+            {
+                callback(db);
+            }        
         };
       
         
@@ -134,7 +140,11 @@ var db = (function(_dbname,_version){
 
         request.onsuccess = function(event) {
             request.result;
-            callback(request.result);
+            if( typeof callback === "function" )
+            {
+                callback(request.result);
+            }
+            
         };                             
     };
     
