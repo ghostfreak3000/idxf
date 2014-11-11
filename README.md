@@ -20,6 +20,7 @@ Just include following code into the `<head>` tag of your HTML:
 var newdb = db("database_name", database_version:int );
 ```
 
+
 `Add` a store.
 ```javascript
 newdb.addStore("store_name");
@@ -27,6 +28,7 @@ newdb.addStore("store_name");
 newdb.addStore(["store_name_1","store_name_2"...]);
 ```
 NB: The add store routine can only be called once per browser load.
+
 
 `Add` data to a store.
 ```javascript
