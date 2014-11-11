@@ -18,10 +18,10 @@ var db = (function(_dbname,_version){
      * @param {String} _name
      * @returns {null}
      */
-    _db.addStore = function(_name){                
+    _db.addStore = function(_name){
         pvt_cron(function(db){           
             pvt_addStore(db,_name);                        
-        });                
+        },{update:true});                
     };
     
     
@@ -37,7 +37,6 @@ var db = (function(_dbname,_version){
         });           
     };
     
-    
     /**
      * 
      * @param {String} _store
@@ -50,7 +49,6 @@ var db = (function(_dbname,_version){
             pvt_delDataOnId(db, _store, _id); 
         });
     };
-
 
     /**
      * 
@@ -93,37 +91,103 @@ var db = (function(_dbname,_version){
     
     function pvt_cron( callback ){
       
-        var request = window.indexedDB.open(dbname, version);            
-        
-        request.onsuccess = function(event){
-            var db = request.result;
-            if( typeof callback === "function" )
-            {
-                callback(db);
-            }            
+        var cronNorm = function(callback)
+        {
+                var request = window.indexedDB.open(dbname);
+
+                request.onsuccess = function(event){
+                    var db = event.target.result;
+                    if( typeof callback === "function" )
+                    {                        
+                        callback(db);                        
+                    }            
+                    db.close();
+                };
+
+                request.onupgradeneeded = function(event){  
+                    var db = event.target.result;
+                    if( typeof callback === "function" )
+                    {
+                        callback(db);                        
+                    }        
+                    db.close();
+                };            
         };
         
-        request.onupgradeneeded = function(event){  
-            var db = event.target.result;
-            if( typeof callback === "function" )
-            {
-                callback(db);
-            }        
+        var cronUpdate = function(callback)
+        {
+                var request = window.indexedDB.open(dbname);
+                request.onsuccess = function(event){
+                    var db = request.result;
+                    var version = parseInt(db.version);
+                    db.close();
+                    
+                    var s_request = window.indexedDB.open(dbname,version+1);
+                    
+                    s_request.onupgradeneeded = function(event)
+                    {
+                        var db = s_request.result;
+                        console.log("calling upgrade function");
+                        if( typeof callback === "function" )
+                        {
+                            callback(db);
+                        } 
+                        db.close();                        
+                    };
+                    
+                    s_request.onsuccess = function(event)
+                    {
+                      var db = s_request.result;
+                      db.close();
+                    };
+                };                
         };
       
+        //var request = window.indexedDB.open(dbname, version);            
+        switch(arguments.length)
+        {       
+            case 0:
+            break;
+            
+            case 1:
+                return cronNorm.apply(this,arguments);                
+
+            default:
+                return cronUpdate.apply(this,arguments);
+        }
         
     };
     
     function pvt_addStore(db,_name){
-        try{
-            db.createObjectStore(_name, { autoIncrement : true });
+        try{    
+            
+            if(_name.constructor === Array)
+            {
+                for(var i = 0, len = _name.length; i < len;i++)
+                {
+                    if(db.objectStoreNames.contains(_name[i]))
+                    {    
+                        continue;
+                    }
+                    db.createObjectStore(_name[i], { autoIncrement : true });
+                }
+            }
+            else
+            {
+                    if(!db.objectStoreNames.contains(_name))
+                    {
+                        db.createObjectStore(_name, { autoIncrement : true });
+                    }
+                                  
+            }            
         }
         catch(e)
         {
             //To do, handle these interesting errors
             switch(e.code)
             {
-                case e.INVALID_STATE_ERR:
+                default:
+                    console.log(e);
                 break;
             }
         }
