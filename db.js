@@ -127,7 +127,6 @@ var db = (function(_dbname,_version){
                     s_request.onupgradeneeded = function(event)
                     {
                         var db = s_request.result;
-                        console.log("calling upgrade function");
                         if( typeof callback === "function" )
                         {
                             callback(db);
