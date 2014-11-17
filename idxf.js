@@ -17,9 +17,9 @@ var idxf = (function(_dbname){
      * @param {String} _name
      * @returns {null}
      */
-    _db.addStore = function(_name){
+    _db.addStore = function(_name, callback){
         pvt_cron(function(db){           
-            pvt_addStore(db,_name);                        
+            pvt_addStore(db,_name,callback);                        
         },{update:true});                
     };
     
@@ -156,7 +156,7 @@ var idxf = (function(_dbname){
         
     };
     
-    function pvt_addStore(db,_name){
+    function pvt_addStore(db,_name,callback){
         try{    
             
             if(_name.constructor === Array)
@@ -177,7 +177,12 @@ var idxf = (function(_dbname){
                         db.createObjectStore(_name, { autoIncrement : true });
                     }
                                   
-            }            
+            }
+            
+            if( typeof callback === "function" )
+            {
+                callback();
+            }
         }
         catch(e)
         {
