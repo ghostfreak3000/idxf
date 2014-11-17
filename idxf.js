@@ -6,10 +6,9 @@
  * Just use it, change it, destroy it(I got a copy....:)....).
  */
 
-var db = (function(_dbname,_version){
+var idxf = (function(_dbname){
     
     var dbname = _dbname;
-    var version = _version;
     var _db = {};
     
     
