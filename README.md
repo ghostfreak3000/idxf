@@ -9,8 +9,8 @@ idxf is written in pure javascript and does not depend on any 3rd party librarie
 Just include following code into the `<head>` tag of your HTML:
 
 ```html
-<!-- include db.min.js-->
-<script src="db.min.js"></script>
+<!-- include idxf.min.js-->
+<script src="idxf.min.js"></script>
 ```
 
 ## API
